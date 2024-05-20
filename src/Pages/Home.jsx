@@ -5,7 +5,12 @@ import ReactFlow, {
   useNodesState,
   useEdgesState,
   addEdge,
+  Controls,
 } from 'reactflow';
+
+import { FaCopy } from "react-icons/fa"
+import { MdDelete } from "react-icons/md"
+import { RxCrossCircled } from "react-icons/rx"
  
 import 'reactflow/dist/style.css';
 
@@ -73,6 +78,18 @@ const Home = () => {
         setNodeTitle('');
     }
 
+    const handleCancelButton = () => {
+        setSelectedNode(null)
+    }
+
+    const handleCopyText = () => {
+        navigator.clipboard.writeText(nodeTitle)
+        .then(() => {alert(`${nodeTitle} copied to clipboard`)})
+        .catch((err) => {
+            alert(`Failed to copy text: ${err}`)
+        })
+    }
+
     return (
       <div className='h-screen w-screen'>
         <div className='p-4'>
@@ -98,25 +115,74 @@ const Home = () => {
           onConnect={onConnect}
           onNodeClick={onNodeClick}
         >
+          <Controls />
           <MiniMap />
           <Background variant="dots" gap={12} size={1} />
         </ReactFlow>
         {
             selectedNode && (
-                <div className="absolute top-0 right-0 bg-white p-4 shadow-lg border">
-                    <h3>Edit Node Title</h3>
-                    <input 
-                        type='text'
-                        value={nodeTitle}
-                        onChange={handleTitleChange}
-                        className='border border-grey-300 p-2 rounded w-full'
-                    />
-                    <button
-                        onClick={handleTitleSave}
-                        className='mt-2 border border-black rounded-lg px-2 py-1 outline-none bg-black text-white font-semibold hover:bg-slate-700'
-                    >
-                        Save
-                    </button>
+                <div className="absolute top-10 right-10 bg-white p-4 shadow-lg border flex flex-col gap-4 w-76">
+                    
+                    <div className='flex gap-2 w-full h-8 items-center'>
+                        <div className='w-full font-semibold'>
+                            {nodeTitle}
+                        </div>
+                        <div className='flex gap-2 items-center cursor-pointer'>
+                            <FaCopy 
+                                onClick={handleCopyText}
+                            />
+                            <MdDelete />
+                            <RxCrossCircled
+                                onClick={handleCancelButton}
+                            />
+                        </div>
+                    </div>
+
+                    <div className='border border-gray-300'></div>
+
+                    <div className='flex gap-2 justify-end'>
+                        <button
+                            onClick={handleCancelButton}
+                            className='w-20
+                                border
+                                border-black 
+                                rounded-lg 
+                                px-2 py-1 
+                                outline-none 
+                                bg-white 
+                                font-semibold 
+                                hover:bg-slate-100'
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={handleTitleSave}
+                            className='w-20
+                                border
+                                border-black 
+                                rounded-lg 
+                                px-2 py-1 
+                                outline-none 
+                                bg-black 
+                                text-white 
+                                font-semibold 
+                                hover:bg-slate-700 '
+                        >
+                            Save
+                        </button>
+                    </div>
+                    <div></div>
+
+
+                    <div className=''>
+                        <input 
+                            type='text'
+                            value={nodeTitle}
+                            onChange={handleTitleChange}
+                            className='border border-grey-300 p-2 rounded w-full text-black font-medium'
+                        />
+                    </div>
+                    
                 </div>
             )
         }
