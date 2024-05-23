@@ -34,6 +34,9 @@ const Home = () => {
 
     const [selectedNode, setSelectedNode] = useState(null)
     const [nodeTitle, setNodeTitle] = useState('')
+    const [selectedNodeId, setSelectedNodeId] = useState(null);
+
+    const [hoveredNode, setHoveredNode] = useState(null);
 
 
     useEffect(() => {
@@ -62,6 +65,7 @@ const Home = () => {
     const onNodeClick = useCallback((event, node) => {
         setSelectedNode(node)
         setNodeTitle(node.data.label)
+        setSelectedNodeId(node.id);
     }, [])
 
     const handleTitleChange = (event) => {
@@ -76,10 +80,12 @@ const Home = () => {
         )
         setSelectedNode(null);
         setNodeTitle('');
+        setSelectedNodeId(null)
     }
 
     const handleCancelButton = () => {
         setSelectedNode(null)
+        setSelectedNodeId(null)
     }
 
     const handleCopyText = () => {
@@ -89,6 +95,44 @@ const Home = () => {
             alert(`Failed to copy text: ${err}`)
         })
     }
+
+    // delete nodes
+    const findAllChildNodes = (nodeId, edges) => {
+        let allChildNodes = []
+        const directChildren = edges.filter(edge => edge.source === nodeId).map(edge => edge.target)
+
+        directChildren.forEach(childId => {
+            allChildNodes.push(childId)
+            allChildNodes = allChildNodes.concat(findAllChildNodes(childId, edges))
+        })
+
+        return allChildNodes
+    }
+
+    const handleDeleteNodes = () => {
+        const allChildNodes = findAllChildNodes(selectedNodeId, edges)
+        const nodesToDelete = [selectedNodeId, ...allChildNodes]
+
+        setNodes((nds) => nds.filter((node) => !nodesToDelete.includes(node.id)))
+        setEdges((eds) => eds.filter((edge) => !nodesToDelete.includes(edge.source) && !nodesToDelete.includes(edge.target)))
+
+        setSelectedNode(null)
+        setSelectedNodeId(null)
+    }
+
+    // hover on nodes
+    const onNodeMouseEnter = useCallback((event, node) => {
+        setHoveredNode(node);
+        // console.log("cursor is hovering at: ", node.data.label);
+    }, [])
+
+    const onNodeMouseLeave = useCallback(() => {
+        setHoveredNode(null);
+    }, [])
+
+    // useEffect(() => {
+    //     console.log("hoveredNode: ", hoveredNode);
+    // }, [hoveredNode])
 
     return (
       <div className='h-screen w-screen'>
@@ -114,11 +158,25 @@ const Home = () => {
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
           onNodeClick={onNodeClick}
+          onNodeMouseEnter={onNodeMouseEnter}
+          onNodeMouseLeave={onNodeMouseLeave}
         >
           <Controls />
           <MiniMap />
           <Background variant="dots" gap={12} size={1} />
         </ReactFlow>
+
+        {/* Hovering on a node */}
+        {
+            hoveredNode !== null && (
+                <div className='absolute top-10 left-10 bg-red-500 p-2'>
+                    Hovering over: {hoveredNode.data.label}
+                </div>
+            )
+        }
+
+
+
         {
             selectedNode && (
                 <div className="absolute top-10 right-10 bg-white p-4 shadow-lg border flex flex-col gap-4 w-76">
@@ -131,7 +189,9 @@ const Home = () => {
                             <FaCopy 
                                 onClick={handleCopyText}
                             />
-                            <MdDelete />
+                            <MdDelete 
+                                onClick={handleDeleteNodes}
+                            />
                             <RxCrossCircled
                                 onClick={handleCancelButton}
                             />
