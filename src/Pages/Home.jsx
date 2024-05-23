@@ -75,7 +75,11 @@ const Home = () => {
     const handleTitleSave = () => {
         setNodes((nds) =>
             nds.map((node) =>
-                node.id === selectedNode.id ? { ...node, data: { ...node.data, label: nodeTitle } } : node
+                node.id === selectedNode.id 
+                ? 
+                { ...node, data: { ...node.data, label: nodeTitle } } 
+                : 
+                node
             )
         )
         setSelectedNode(null);
@@ -99,7 +103,8 @@ const Home = () => {
     // delete nodes
     const findAllChildNodes = (nodeId, edges) => {
         let allChildNodes = []
-        const directChildren = edges.filter(edge => edge.source === nodeId).map(edge => edge.target)
+        const directChildren = edges.filter(edge => edge.source === nodeId)
+                                                .map(edge => edge.target)
 
         directChildren.forEach(childId => {
             allChildNodes.push(childId)
@@ -114,7 +119,8 @@ const Home = () => {
         const nodesToDelete = [selectedNodeId, ...allChildNodes]
 
         setNodes((nds) => nds.filter((node) => !nodesToDelete.includes(node.id)))
-        setEdges((eds) => eds.filter((edge) => !nodesToDelete.includes(edge.source) && !nodesToDelete.includes(edge.target)))
+        setEdges((eds) => eds.filter((edge) => !nodesToDelete.includes(edge.source) 
+                                            && !nodesToDelete.includes(edge.target)))
 
         setSelectedNode(null)
         setSelectedNodeId(null)
@@ -129,10 +135,6 @@ const Home = () => {
     const onNodeMouseLeave = useCallback(() => {
         setHoveredNode(null);
     }, [])
-
-    // useEffect(() => {
-    //     console.log("hoveredNode: ", hoveredNode);
-    // }, [hoveredNode])
 
     return (
       <div className='h-screen w-screen'>
@@ -165,27 +167,46 @@ const Home = () => {
           <MiniMap />
           <Background variant="dots" gap={12} size={1} />
         </ReactFlow>
-
+        
         {/* Hovering on a node */}
         {
             hoveredNode !== null && (
-                <div className='absolute top-10 left-10 bg-red-500 p-2'>
+                <div 
+                    className='absolute top-10 
+                    left-10 bg-red-500 p-2'
+                >
                     Hovering over: {hoveredNode.data.label}
                 </div>
             )
         }
 
-
-
         {
             selectedNode && (
-                <div className="absolute top-10 right-10 bg-white p-4 shadow-lg border flex flex-col gap-4 w-76">
+                <div 
+                    className="absolute 
+                        top-10 right-10 
+                        bg-white p-4 
+                        shadow-lg border 
+                        flex flex-col 
+                        gap-4 w-76"
+                >
                     
-                    <div className='flex gap-2 w-full h-8 items-center'>
-                        <div className='w-full font-semibold'>
+                    <div 
+                        className='flex 
+                            gap-2 w-full 
+                            h-8 items-center'
+                    >
+                        <div 
+                            className='w-full 
+                                font-semibold'
+                        >
                             {nodeTitle}
                         </div>
-                        <div className='flex gap-2 items-center cursor-pointer'>
+                        <div 
+                            className='flex 
+                                gap-2 items-center 
+                                cursor-pointer'
+                        >
                             <FaCopy 
                                 onClick={handleCopyText}
                             />
@@ -198,9 +219,16 @@ const Home = () => {
                         </div>
                     </div>
 
-                    <div className='border border-gray-300'></div>
+                    <div 
+                        className='border 
+                        border-gray-300'
+                    >
+                    </div>
 
-                    <div className='flex gap-2 justify-end'>
+                    <div 
+                        className='flex 
+                        gap-2 justify-end'
+                    >
                         <button
                             onClick={handleCancelButton}
                             className='w-20
@@ -239,7 +267,9 @@ const Home = () => {
                             type='text'
                             value={nodeTitle}
                             onChange={handleTitleChange}
-                            className='border border-grey-300 p-2 rounded w-full text-black font-medium'
+                            className='border border-grey-300 
+                                p-2 rounded w-full 
+                                text-black font-medium'
                         />
                     </div>
                     
